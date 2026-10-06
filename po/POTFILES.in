@@ -1,0 +1,16 @@
+src/app.vala
+src/window.vala
+src/feed.vala
+src/opml.vala
+src/itunes.vala
+src/format.vala
+src/library.vala
+src/net.vala
+src/player.vala
+src/mpris.vala
+src/downloads.vala
+src/chapters.vala
+src/effects.vala
+src/queue.vala
+src/sleep_timer.vala
+widget/new_episodes_widget.vala

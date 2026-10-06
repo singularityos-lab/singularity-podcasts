@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:podcast="https://podcastindex.org/namespace/1.0" xmlns:psc="http://podlove.org/simple-chapters">
+  <channel>
+    <title>Chaptered Show</title>
+    <item>
+      <title>Index Chapters</title>
+      <guid>c-1</guid>
+      <pubDate>Mon, 01 Jan 2024 10:00:00 GMT</pubDate>
+      <enclosure url="https://example.org/c1.mp3" length="100" type="audio/mpeg"/>
+      <podcast:chapters url="https://example.org/c1.json" type="application/json+chapters"/>
+    </item>
+    <item>
+      <title>Podlove Chapters</title>
+      <guid>c-2</guid>
+      <pubDate>Tue, 02 Jan 2024 10:00:00 GMT</pubDate>
+      <enclosure url="https://example.org/c2.mp3" length="100" type="audio/mpeg"/>
+      <psc:chapters version="1.2">
+        <psc:chapter start="00:00:00.000" title="Intro"/>
+        <psc:chapter start="00:01:30.500" title="Topic &amp; Guests" href="https://example.org/topic"/>
+        <psc:chapter start="1:02:03" title="Late"/>
+        <psc:chapter start="bogus" title="Broken"/>
+        <chapter start="00:00:10" title="Wrong namespace"/>
+      </psc:chapters>
+    </item>
+    <item>
+      <title>Unsafe Chapters Link</title>
+      <guid>c-3</guid>
+      <pubDate>Wed, 03 Jan 2024 10:00:00 GMT</pubDate>
+      <enclosure url="https://example.org/c3.mp3" length="100" type="audio/mpeg"/>
+      <podcast:chapters url="file:///etc/passwd" type="application/json+chapters"/>
+    </item>
+  </channel>
+</rss>

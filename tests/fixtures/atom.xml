@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+  <title>Atomic Talk</title>
+  <subtitle>Short conversations.</subtitle>
+  <link rel="self" href="https://example.com/feed.atom"/>
+  <link rel="alternate" href="https://example.com/"/>
+  <author><name>Ada</name></author>
+  <logo>https://example.com/logo.png</logo>
+  <entry>
+    <title type="html">First &amp;amp; Best</title>
+    <id>urn:uuid:1</id>
+    <published>2023-05-06T07:08:09Z</published>
+    <updated>2023-05-07T00:00:00Z</updated>
+    <link rel="alternate" href="https://example.com/1"/>
+    <link rel="enclosure" type="audio/ogg" length="2048" href="https://example.com/1.ogg"/>
+    <itunes:duration>12:05</itunes:duration>
+    <summary type="html">&lt;p&gt;Hello &lt;i&gt;world&lt;/i&gt;&lt;/p&gt;</summary>
+  </entry>
+  <entry>
+    <title>Second</title>
+    <id>urn:uuid:2</id>
+    <updated>2023-06-01T12:00:00+02:00</updated>
+    <link rel="enclosure" type="audio/mpeg" href="https://example.com/2.mp3"/>
+    <content type="text">Just text.</content>
+  </entry>
+</feed>

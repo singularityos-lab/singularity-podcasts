@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="1.0">
+  <head><title>My Feeds</title></head>
+  <body>
+    <outline text="Podcasts">
+      <outline type="rss" text="The Orbit &amp; Beyond" xmlUrl="https://example.org/orbit/feed.xml" htmlUrl="https://example.org/orbit"/>
+      <outline type="rss" title="Atomic Talk" text="Atomic" xmlUrl="https://example.com/feed.atom"/>
+    </outline>
+    <outline type="rss" text="Duplicate" xmlUrl="https://example.com/feed.atom"/>
+    <outline type="link" text="Not a feed" url="https://example.net"/>
+  </body>
+</opml>

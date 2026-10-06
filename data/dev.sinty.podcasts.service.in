@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=dev.sinty.podcasts
+Exec=@bindir@/singularity-podcasts --gapplication-service

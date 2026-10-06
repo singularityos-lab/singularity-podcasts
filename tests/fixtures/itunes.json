@@ -1,0 +1,8 @@
+{
+ "resultCount": 3,
+ "results": [
+  {"wrapperType": "track", "kind": "podcast", "collectionName": "Science Hour", "trackName": "Science Hour", "artistName": "Radio Lab", "feedUrl": "https://feeds.example.com/science", "artworkUrl100": "https://img.example.com/100.jpg", "artworkUrl600": "https://img.example.com/600.jpg", "primaryGenreName": "Science", "trackCount": 250},
+  {"wrapperType": "track", "kind": "podcast", "collectionName": "No Feed Show", "artistName": "Nobody"},
+  {"wrapperType": "track", "kind": "podcast", "trackName": "Only Track Name", "artistName": "Someone", "feedUrl": "https://feeds.example.com/only", "artworkUrl100": "https://img.example.com/o100.jpg"}
+ ]
+}

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>The Orbit &amp; Beyond</title>
+    <link>https://example.org/orbit</link>
+    <description>Plain channel description.</description>
+    <itunes:author>Space Club</itunes:author>
+    <itunes:summary><![CDATA[<p>Weekly talk about <b>space</b>.</p><p>Second paragraph.</p>]]></itunes:summary>
+    <itunes:image href="https://example.org/orbit/cover.jpg"/>
+    <image><url>https://example.org/orbit/small.png</url></image>
+    <item>
+      <title>Episode 1: Launch</title>
+      <guid isPermaLink="false">orbit-1</guid>
+      <pubDate>Mon, 01 Jan 2024 10:00:00 +0200</pubDate>
+      <enclosure url="https://example.org/orbit/1.mp3" length="12345678" type="audio/mpeg"/>
+      <itunes:duration>1:02:03</itunes:duration>
+      <description>Short text</description>
+      <content:encoded><![CDATA[<p>We talk about <a href="https://x">rockets</a> &amp; fuel.</p><ul><li>One</li><li>Two</li></ul><script>alert(1)</script>Caf&eacute; &#233; &#x41;<br/>Line two]]></content:encoded>
+    </item>
+    <item>
+      <title>Episode 2: Orbit</title>
+      <guid>orbit-2</guid>
+      <pubDate>Tue, 9 Jan 24 08:30 GMT</pubDate>
+      <enclosure url="https://example.org/orbit/2.mp3" length="100" type="audio/mpeg"/>
+      <itunes:duration>754</itunes:duration>
+      <itunes:image href="https://example.org/orbit/2.jpg"/>
+      <description>Plain &lt;b&gt;escaped&lt;/b&gt; text</description>
+    </item>
+    <item>
+      <title>Blog post without audio</title>
+      <guid>orbit-post</guid>
+      <pubDate>Wed, 10 Jan 2024 08:30:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

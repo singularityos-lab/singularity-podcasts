@@ -1,0 +1,13 @@
+{
+  "version": "1.2.0",
+  "chapters": [
+    { "startTime": 0, "title": "Welcome" },
+    { "startTime": 95.5, "title": "News &amp; Notes", "url": "https://example.org/news", "img": "https://example.org/news.jpg" },
+    { "startTime": 60, "title": "Sponsor", "toc": false },
+    { "startTime": 300, "endTime": 400, "title": "Interview" },
+    { "startTime": "12:00", "title": "Wrap Up" },
+    { "title": "No start" },
+    { "startTime": 300, "title": "Duplicate start" },
+    "junk"
+  ]
+}

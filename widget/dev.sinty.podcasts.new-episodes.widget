@@ -1,0 +1,8 @@
+[Widget]
+Id=podcasts.new-episodes
+ProviderId=dev.sinty.podcasts
+Name=New Episodes
+IconName=dev.sinty.podcasts
+Sizes=2x2;4x2;4x4
+Module=libsingularity-podcasts-widget.so
+ModuleSymbol=singularity_podcasts_widget_new

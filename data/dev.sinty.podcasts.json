@@ -1,0 +1,19 @@
+{
+    "schema-id": "dev.sinty.podcasts",
+    "settings": [
+        {
+            "key": "trim-silence",
+            "label": "Trim Silence",
+            "subtitle": "Skip the pauses in episodes, unless a show is set otherwise",
+            "type": "boolean",
+            "widget": "toggle"
+        },
+        {
+            "key": "voice-boost",
+            "label": "Voice Boost",
+            "subtitle": "Make voices clearer and even out their loudness",
+            "type": "boolean",
+            "widget": "toggle"
+        }
+    ]
+}

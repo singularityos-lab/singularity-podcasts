@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="dev.sinty.podcasts" path="/dev/sinty/podcasts/">
+    <key name="trim-silence" type="b">
+      <default>false</default>
+      <summary>Trim silence</summary>
+      <description>Skip the pauses in episodes. Shows can override this.</description>
+    </key>
+    <key name="voice-boost" type="b">
+      <default>false</default>
+      <summary>Voice boost</summary>
+      <description>Make voices clearer and even out their loudness. Shows can override this.</description>
+    </key>
+    <key name="sleep-custom-minutes" type="i">
+      <default>90</default>
+      <range min="1" max="720"/>
+      <summary>Custom sleep timer</summary>
+      <description>The last custom length of the sleep timer, in minutes.</description>
+    </key>
+  </schema>
+</schemalist>
