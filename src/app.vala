@@ -382,6 +382,16 @@ namespace Singularity.Apps.Podcasts {
                 if (colon < 0) continue;
                 string scheme = uri.substring (0, colon).down ();
                 string rest = uri.substring (colon + 3);
+                if (scheme == "sinty-podcasts") {
+                    try {
+                        var parsed = Uri.parse (uri, UriFlags.NONE);
+                        var q = Uri.parse_params (parsed.get_query () ?? "", -1, "&", UriParamsFlags.NONE);
+                        w.open_moment (q["show"] ?? "", q["episode"] ?? "", int.parse (q["t"] ?? "0"));
+                    } catch (Error err) {
+                        warning ("Podcasts: bad moment link %s", uri);
+                    }
+                    continue;
+                }
                 string url;
                 if (scheme == "itpc" || scheme == "pcast" || scheme == "feed" || scheme == "podcast") url = "https://" + rest;
                 else if (scheme == "http" || scheme == "https") url = uri;

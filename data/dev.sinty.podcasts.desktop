@@ -9,7 +9,7 @@ Categories=AudioVideo;Audio;Player;
 Keywords=podcast;podcasts;rss;feed;episode;show;audio;opml;
 StartupWMClass=dev.sinty.podcasts
 Actions=new-episodes;
-MimeType=x-scheme-handler/itpc;x-scheme-handler/pcast;x-scheme-handler/feed;x-scheme-handler/podcast;application/rss+xml;
+MimeType=x-scheme-handler/sinty-podcasts;x-scheme-handler/itpc;x-scheme-handler/pcast;x-scheme-handler/feed;x-scheme-handler/podcast;application/rss+xml;
 
 [Desktop Action new-episodes]
 Name=New Episodes

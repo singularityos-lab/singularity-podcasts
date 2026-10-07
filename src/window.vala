@@ -1040,6 +1040,18 @@ namespace Singularity.Apps.Podcasts {
             bool playing = current && (player.state == PlayState.PLAYING || player.state == PlayState.LOADING);
             menu.add_item (playing ? _("Pause") : (e.in_progress () ? _("Resume") : _("Play")), playing ? "media-playback-pause-symbolic" : "media-playback-start-symbolic", () => play_episode (e));
             menu.add_item (_("Details"), "document-properties-symbolic", () => show_details (e));
+            if (current) {
+                int at = player.position ();
+                var anchor = menu.get_parent ();
+                menu.add_item (_("Add Moment to a Note…"), "document-send-symbolic", () => {
+                    Idle.add (() => {
+                        if (anchor != null) Singularity.Notes.NotePicker.popup (anchor, (id) => add_moment (e, at, id));
+                        return Source.REMOVE;
+                    });
+                });
+            }
+            string share_link = e.link != "" ? e.link : e.audio_url;
+            if (share_link != "") menu.add_item (_("Share…"), "singularity-share-symbolic", () => Singularity.Share.uris ((Gtk.Window) get_root (), { share_link }, e.title));
             if (player.episode != e) {
                 int qi = queue.index_of (e);
                 if (qi != 0) menu.add_item (_("Play Next"), "media-skip-forward-symbolic", () => {
@@ -1187,6 +1199,37 @@ namespace Singularity.Apps.Podcasts {
                 return true;
             }
             return false;
+        }
+
+        public static string moment_uri (Episode e, int seconds) {
+            return "sinty-podcasts://moment?show=%s&episode=%s&t=%d".printf (Uri.escape_string (e.show_url, null, false), Uri.escape_string (e.key (), null, false), seconds);
+        }
+
+        private void add_moment (Episode e, int seconds, string? note_id) {
+            string when = "%d:%02d".printf (seconds / 60, seconds % 60);
+            if (seconds >= 3600) when = "%d:%02d:%02d".printf (seconds / 3600, (seconds / 60) % 60, seconds % 60);
+            try {
+                var note = Singularity.Notes.NotePicker.target (note_id, e.title);
+                Singularity.Notes.NotePicker.append (note, "[%s, %s](%s)\n".printf (e.title.replace ("]", ""), when, moment_uri (e, seconds)));
+                show_toast (note_id == null ? _("Moment added to a new note") : _("Moment added to %s").printf (note.title));
+            } catch (Error err) {
+                show_error (_("Could Not Add the Moment"), err.message);
+            }
+        }
+
+        public void open_moment (string show_url, string key, int seconds) {
+            var e = library.find_episode (show_url, key);
+            if (e == null) {
+                show_toast (_("This episode is no longer in your library"));
+                return;
+            }
+            if (player.episode == e) {
+                player.seek_to (seconds);
+                if (player.state != PlayState.PLAYING) player.toggle ();
+                return;
+            }
+            library.set_position (e, seconds);
+            play_episode (e);
         }
 
         public void play_episode (Episode e) {
