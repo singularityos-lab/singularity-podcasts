@@ -1040,7 +1040,7 @@ namespace Singularity.Apps.Podcasts {
             bool playing = current && (player.state == PlayState.PLAYING || player.state == PlayState.LOADING);
             menu.add_item (playing ? _("Pause") : (e.in_progress () ? _("Resume") : _("Play")), playing ? "media-playback-pause-symbolic" : "media-playback-start-symbolic", () => play_episode (e));
             menu.add_item (_("Details"), "document-properties-symbolic", () => show_details (e));
-            if (current) {
+            if (current && Singularity.Notes.NotePicker.available ()) {
                 int at = player.position ();
                 var anchor = menu.get_parent ();
                 menu.add_item (_("Add Moment to a Note…"), "document-send-symbolic", () => {
@@ -1208,13 +1208,14 @@ namespace Singularity.Apps.Podcasts {
         private void add_moment (Episode e, int seconds, string? note_id) {
             string when = "%d:%02d".printf (seconds / 60, seconds % 60);
             if (seconds >= 3600) when = "%d:%02d:%02d".printf (seconds / 3600, (seconds / 60) % 60, seconds % 60);
-            try {
-                var note = Singularity.Notes.NotePicker.target (note_id, e.title);
-                Singularity.Notes.NotePicker.append (note, "[%s, %s](%s)\n".printf (e.title.replace ("]", ""), when, moment_uri (e, seconds)));
-                show_toast (note_id == null ? _("Moment added to a new note") : _("Moment added to %s").printf (note.title));
-            } catch (Error err) {
-                show_error (_("Could Not Add the Moment"), err.message);
-            }
+            Singularity.Notes.NotePicker.add.begin (note_id, e.title, "[%s, %s](%s)\n".printf (e.title.replace ("]", ""), when, moment_uri (e, seconds)), (obj, res) => {
+                try {
+                    var note = Singularity.Notes.NotePicker.add.end (res);
+                    show_toast (note.created ? _("Moment added to a new note") : _("Moment added to %s").printf (note.title));
+                } catch (Error err) {
+                    show_error (_("Could Not Add the Moment"), err.message);
+                }
+            });
         }
 
         public void open_moment (string show_url, string key, int seconds) {
