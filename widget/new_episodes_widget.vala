@@ -119,7 +119,8 @@ namespace SingularityPodcastsWidget {
                         e.published = eo.get_int_member_with_default ("published", 0);
                         string guid = eo.get_string_member_with_default ("guid", "");
                         string audio = eo.get_string_member_with_default ("audio", "");
-                        e.key = guid != "" ? guid : (audio != "" ? audio : "%s|%s".printf (e.title, e.published.to_string ()));
+                        if (guid != "") e.key = guid;
+                        else e.key = audio != "" ? audio : "%s|%s".printf (e.title, e.published.to_string ());
                         all.add (e);
                     }
                 }
