@@ -1,6 +1,29 @@
 namespace Singularity.Apps.Podcasts {
 
     public class Net {
+        private static async Bytes read_bounded (Soup.Session session, Soup.Message message, int64 limit, int priority, Cancellable? cancellable) throws Error {
+            var stream = yield session.send_async (message, priority, cancellable);
+            if (message.response_headers.get_content_length () > limit) throw new IOError.MESSAGE_TOO_LARGE ("The response is too large");
+            var body = new ByteArray ();
+            var chunk = new uint8[65536];
+            ssize_t n;
+            while ((n = yield stream.read_async (chunk, priority, cancellable)) > 0) {
+                if (body.len + n > limit) {
+                    try {
+                        stream.close (null);
+                    } catch (Error e) {
+                    }
+                    throw new IOError.MESSAGE_TOO_LARGE ("The response is too large");
+                }
+                body.append (chunk[0:(int) n]);
+            }
+            try {
+                stream.close (null);
+            } catch (Error e) {
+            }
+            return ByteArray.free_to_bytes ((owned) body);
+        }
+
         private static Soup.Session? session;
 
         public static Soup.Session get () {
@@ -45,7 +68,7 @@ namespace Singularity.Apps.Podcasts {
             if (msg == null) throw new IOError.INVALID_ARGUMENT (_("This is not a valid web address."));
             Bytes bytes;
             try {
-                bytes = yield get ().send_and_read_async (msg, Priority.DEFAULT, cancel);
+                bytes = yield read_bounded (get (), msg, 64 * 1024 * 1024, Priority.DEFAULT, cancel);
             } catch (Error e) {
                 throw friendly (e);
             }
