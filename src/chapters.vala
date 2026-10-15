@@ -217,7 +217,7 @@ namespace Singularity.Apps.Podcasts {
                 for (int i = 0; i < 4; i++) id.append_c ((char) tag[pos + i]);
                 int fsize = major == 4 ? (int) syncsafe (tag, pos + 4) : (int) be32 (tag, pos + 4);
                 int body = pos + 10;
-                if (fsize <= 0 || body + fsize > limit) break;
+                if (fsize <= 0 || fsize > limit - body) break;
                 if (top && id.str == "CHAP") {
                     var ch = read_chap (tag, body, body + fsize, major);
                     if (ch != null && list.size < MAX_CHAPTERS) list.add (ch);

@@ -386,6 +386,8 @@ void test_chapters_id3 () {
     assert (v3[0].title == "First" && v3[1].title == "Second" && v3[1].start == 30 && v3[1].end == 90);
     assert (Chapters.parse_id3 ("ID3".data).size == 0);
     assert (Chapters.parse_id3 ({ 'I', 'D', '3', 2, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }).size == 0);
+    uint8[] huge = { 'I', 'D', '3', 3, 0, 0, 0, 0, 0, 20, 'C', 'H', 'A', 'P', 0x7f, 0xff, 0xff, 0xf8, 0, 0, 'x', 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    assert (Chapters.parse_id3 (huge).size == 0);
     uint8[] truncated = fixture_bytes ("chapters-v24.id3")[0:60];
     assert (Chapters.parse_id3 (truncated).size <= 1);
     string path = Path.build_filename (Environment.get_variable ("PODCASTS_FIXTURES"), "chapters-v24.id3");
