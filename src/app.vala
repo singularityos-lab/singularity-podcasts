@@ -354,7 +354,7 @@ namespace Singularity.Apps.Podcasts {
         }
 
         private void quit_app () {
-            foreach (var w in get_windows ()) w.close ();
+            foreach (var w in get_windows ().copy ()) w.close ();
         }
 
         public override void activate () {
