@@ -83,29 +83,30 @@ namespace Singularity.Apps.Podcasts {
 
         private async Gdk.Texture? decode (Bytes? data, string path) {
             Gdk.Texture? result = null;
-            SourceFunc cb = decode.callback;
-            new Thread<bool> ("podcasts-artwork", () => {
-                try {
-                    if (data != null) {
-                        var loader = new Gdk.PixbufLoader ();
-                        loader.write_bytes (data);
-                        loader.close ();
-                        var pix = loader.get_pixbuf ();
-                        if (pix != null) {
-                            int w = pix.width, h = pix.height;
-                            double scale = double.min (1.0, (double) MAX_SIZE / int.max (w, h));
-                            if (scale < 1.0) pix = pix.scale_simple (int.max (1, (int) (w * scale)), int.max (1, (int) (h * scale)), Gdk.InterpType.BILINEAR);
-                            pix.savev (path, "png", {}, {});
+            try {
+                yield Async.run<bool>((c) => {
+                    try {
+                        if (data != null) {
+                            var loader = new Gdk.PixbufLoader ();
+                            loader.write_bytes (data);
+                            loader.close ();
+                            var pix = loader.get_pixbuf ();
+                            if (pix != null) {
+                                int w = pix.width, h = pix.height;
+                                double scale = double.min (1.0, (double) MAX_SIZE / int.max (w, h));
+                                if (scale < 1.0) pix = pix.scale_simple (int.max (1, (int) (w * scale)), int.max (1, (int) (h * scale)), Gdk.InterpType.BILINEAR);
+                                pix.savev (path, "png", {}, {});
+                            }
                         }
+                        result = Gdk.Texture.from_filename (path);
+                    } catch (Error e) {
+                        result = null;
                     }
-                    result = Gdk.Texture.from_filename (path);
-                } catch (Error e) {
-                    result = null;
-                }
-                Idle.add ((owned) cb);
-                return true;
-            });
-            yield;
+                    return true;
+                }, Async.Qos.USER);
+            } catch (Error e) {
+                warning("%s", e.message);
+            }
             return result;
         }
     }
