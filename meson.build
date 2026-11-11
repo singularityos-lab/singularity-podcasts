@@ -29,7 +29,7 @@ core_sources = files('src/chapters.vala', 'src/feed.vala', 'src/opml.vala', 'src
 math_dep = meson.get_compiler('c').find_library('m')
 
 executable('singularity-podcasts',
-  core_sources + files('src/effects.vala', 'src/artwork.vala', 'src/player.vala', 'src/mpris.vala', 'src/downloads.vala', 'src/window.vala', 'src/app.vala'),
+  core_sources + files('src/effects.vala', 'src/artwork.vala', 'src/player.vala', 'src/mpris.vala', 'src/downloads.vala', 'src/window.vala', 'src/agent_intents.vala', 'src/app.vala'),
   dependencies: [gtk_dep, gee_dep, soup_dep, json_dep, xml_dep, gst_dep, pixbuf_dep, math_dep, libsingularity_dep],
   install: true
 )

@@ -87,6 +87,7 @@ namespace Singularity.Apps.Podcasts {
             } catch (Error e) {
             }
             mpris = new MprisService (player, library);
+            PodcastsIntents.install (this);
             mpris.raise_requested.connect (() => activate ());
             mpris.quit_requested.connect (() => quit_app ());
             var provider = new CssProvider ();
