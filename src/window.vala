@@ -651,7 +651,17 @@ namespace Singularity.Apps.Podcasts {
         }
 
         private void go_back () {
-            if (section == "show") go ("shows");
+            if (section != "show") return;
+            var prev = current_show;
+            go ("shows");
+            if (prev == null || Singularity.FormFactor.current () != Singularity.FormFactorKind.TV) return;
+            for (var c = grid.get_first_child (); c != null; c = c.get_next_sibling ()) {
+                var card = c as ShowCard;
+                if (card != null && card.item == prev) {
+                    card.grab_focus ();
+                    break;
+                }
+            }
         }
 
         private void sync_chrome () {
