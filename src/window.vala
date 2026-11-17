@@ -8,6 +8,7 @@ namespace Singularity.Apps.Podcasts {
 
         public ShowCard (Show s) {
             item = s;
+            Singularity.Focus.set_key (this, "show:" + s.feed_url);
             add_css_class ("podcasts-card");
             var box = new Box (Orientation.VERTICAL, 6);
             var overlay = new Overlay ();
@@ -651,17 +652,7 @@ namespace Singularity.Apps.Podcasts {
         }
 
         private void go_back () {
-            if (section != "show") return;
-            var prev = current_show;
-            go ("shows");
-            if (prev == null || Singularity.FormFactor.current () != Singularity.FormFactorKind.TV) return;
-            for (var c = grid.get_first_child (); c != null; c = c.get_next_sibling ()) {
-                var card = c as ShowCard;
-                if (card != null && card.item == prev) {
-                    card.grab_focus ();
-                    break;
-                }
-            }
+            if (section == "show") go ("shows");
         }
 
         private void sync_chrome () {
