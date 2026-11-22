@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="236" height="236" viewBox="0 0 236 236" fill="none"><defs><linearGradient id="ring_pod" x1="78" y1="0" x2="158" y2="0" gradientUnits="userSpaceOnUse">
+<stop offset="0%" stop-color="#c4b5fd" />
+<stop offset="50%" stop-color="#ede9fe" />
+<stop offset="100%" stop-color="#a78bfa" />
+</linearGradient>
+</defs><rect x="74" y="108" width="88" height="12" fill="url(#ring_pod)" />
+</svg>

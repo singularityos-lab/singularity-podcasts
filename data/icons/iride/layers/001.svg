@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="236" height="236" viewBox="0 0 236 236" fill="none"><defs><linearGradient id="stand_pod" x1="60" y1="92" x2="176" y2="216" gradientUnits="userSpaceOnUse">
+<stop offset="0%" stop-color="#7a72a8" />
+<stop offset="100%" stop-color="#3a3358" />
+</linearGradient>
+</defs><rect x="110" y="170" width="16" height="34" rx="4" fill="url(#stand_pod)" />
+</svg>
