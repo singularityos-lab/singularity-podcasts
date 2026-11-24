@@ -638,6 +638,70 @@ namespace Singularity.Apps.Podcasts {
             discover_stack.visible_child_name = "status";
         }
 
+        public Variant save_migration () {
+            var d = new VariantDict ();
+            d.insert_value ("section", new Variant.string (section));
+            d.insert_value ("show", new Variant.string (current_show != null ? current_show.feed_url : ""));
+            d.insert_value ("query", new Variant.string (search.text));
+            d.insert_value ("last-search", new Variant.string (last_search));
+            d.insert_value ("limit", new Variant.int32 (shown_limit));
+            return d.end ();
+        }
+
+        public void restore_migration (Variant data) {
+            var d = new VariantDict (data);
+            string wanted = (d.lookup_value ("section", VariantType.STRING) ?? new Variant.string ("shows")).get_string ();
+            string url = (d.lookup_value ("show", VariantType.STRING) ?? new Variant.string ("")).get_string ();
+            var s = url != "" ? library.find_show (url) : null;
+            if (wanted == "show" && s != null) {
+                section = "show";
+                current_show = s;
+            } else if (nav.has_key (wanted)) {
+                section = wanted;
+                current_show = null;
+            }
+            last_search = (d.lookup_value ("last-search", VariantType.STRING) ?? new Variant.string ("")).get_string ();
+            string text = (d.lookup_value ("query", VariantType.STRING) ?? new Variant.string ("")).get_string ();
+            query = section == "discover" ? "" : text.strip ().down ();
+            search.text = text;
+            shown_limit = (d.lookup_value ("limit", VariantType.INT32) ?? new Variant.int32 (60)).get_int32 ();
+            rebuild ();
+        }
+
+        public void resume_playback (Variant model) {
+            var d = new VariantDict (model);
+            string show_url = (d.lookup_value ("show", VariantType.STRING) ?? new Variant.string ("")).get_string ();
+            string key = (d.lookup_value ("episode", VariantType.STRING) ?? new Variant.string ("")).get_string ();
+            int position = (d.lookup_value ("position", VariantType.INT32) ?? new Variant.int32 (0)).get_int32 ();
+            bool playing = (d.lookup_value ("playing", VariantType.BOOLEAN) ?? new Variant.boolean (false)).get_boolean ();
+            double rate = (d.lookup_value ("rate", VariantType.DOUBLE) ?? new Variant.double (player.rate)).get_double ();
+            var e = key != "" ? library.find_episode (show_url, key) : null;
+            if (e == null) {
+                if (player.episode != null) stop_playback ();
+                return;
+            }
+            if (player.episode != e) {
+                e.played = false;
+                library.set_position (e, position);
+                start_episode (e, playing);
+            } else {
+                if ((player.position () - position).abs () > 1) player.seek_to (position);
+                if (player.playing != playing) player.toggle ();
+            }
+            if (player.episode != e) return;
+            if (Math.fabs (player.rate - rate) > 0.001) player.change_rate (rate);
+            var timer = d.lookup_value ("sleep", new VariantType ("(ix)"));
+            if (timer == null) return;
+            int mode;
+            int64 left;
+            timer.get ("(ix)", out mode, out left);
+            if ((SleepMode) mode == SleepMode.OFF) sleep.cancel ();
+            else if ((SleepMode) mode == SleepMode.MINUTES) sleep.start_until (SleepTimer.now () + left);
+            else if ((SleepMode) mode == sleep.mode) return;
+            else if ((SleepMode) mode == SleepMode.END_OF_EPISODE) sleep.start_track (SleepMode.END_OF_EPISODE, () => episode_left ());
+            else if ((SleepMode) mode == SleepMode.END_OF_CHAPTER && e.chapters.size > 0) sleep_end_of_chapter (e);
+        }
+
         public void go (string id) {
             section = id;
             current_show = null;
@@ -1239,6 +1303,10 @@ namespace Singularity.Apps.Podcasts {
                 player.toggle ();
                 return;
             }
+            start_episode (e, true);
+        }
+
+        private void start_episode (Episode e, bool autoplay) {
             save_position ();
             string uri;
             if (e.is_downloaded ()) {
@@ -1263,7 +1331,7 @@ namespace Singularity.Apps.Podcasts {
             player.preset_rate (show != null && show.speed > 0 ? show.speed : app.default_rate);
             player.set_effects (effective_trim (show), effective_boost (show), false);
             queue.remove (e);
-            player.open (e, uri);
+            player.open (e, uri, autoplay);
             library.schedule_save ();
             load_chapters.begin (e);
         }
@@ -2026,18 +2094,7 @@ namespace Singularity.Apps.Podcasts {
             menu.add_item (_("End of Episode"), null, () => sleep.start_track (SleepMode.END_OF_EPISODE, () => episode_left ()));
             var e = player.episode;
             int idx = e.chapters.size > 0 ? Chapters.index_at (e.chapters, player.position ()) : -1;
-            if (idx >= 0) {
-                menu.add_item (_("End of Chapter"), null, () => {
-                    int now_idx = Chapters.index_at (e.chapters, player.position ());
-                    double end = now_idx >= 0 ? e.chapters[now_idx].end : -1;
-                    sleep.start_track (SleepMode.END_OF_CHAPTER, () => {
-                        if (player.episode != e) return 0;
-                        double stop = end > 0 ? end : player.duration ();
-                        if (stop <= 0) return -1;
-                        return double.max ((stop - player.position_us () / 1000000.0) / player.rate, 0);
-                    });
-                });
-            }
+            if (idx >= 0) menu.add_item (_("End of Chapter"), null, () => sleep_end_of_chapter (e));
             menu.add_item (_("Custom…"), null, () => custom_sleep ());
             if (sleep.active) {
                 menu.add_separator ();
@@ -2045,6 +2102,17 @@ namespace Singularity.Apps.Podcasts {
             }
             menu.position = PositionType.TOP;
             popup (menu);
+        }
+
+        private void sleep_end_of_chapter (Episode e) {
+            int now_idx = Chapters.index_at (e.chapters, player.position ());
+            double end = now_idx >= 0 ? e.chapters[now_idx].end : -1;
+            sleep.start_track (SleepMode.END_OF_CHAPTER, () => {
+                if (player.episode != e) return 0;
+                double stop = end > 0 ? end : player.duration ();
+                if (stop <= 0) return -1;
+                return double.max ((stop - player.position_us () / 1000000.0) / player.rate, 0);
+            });
         }
 
         private void custom_sleep () {

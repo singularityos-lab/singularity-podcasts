@@ -32,6 +32,7 @@ namespace Singularity.Apps.Podcasts {
         public PlayState state { get; private set; default = PlayState.STOPPED; }
         public double rate { get; private set; default = 1.0; }
         public bool available { get { return playbin != null; } }
+        public bool playing { get { return state == PlayState.PLAYING || (state == PlayState.LOADING && want_playing); } }
 
         public signal void tick ();
         public signal void failed (string message);

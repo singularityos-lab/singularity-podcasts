@@ -2,7 +2,7 @@ using Gtk;
 
 namespace Singularity.Apps.Podcasts {
 
-    public class PodcastsApp : Singularity.Application {
+    public class PodcastsApp : Singularity.Application, Singularity.Migration.Migratable {
         public Library library;
         public Player player;
         public Downloads downloads;
@@ -35,6 +35,7 @@ namespace Singularity.Apps.Podcasts {
         private int64 shown_badge = -1;
         private bool dock_buttons;
         private bool show_new_pending;
+        private Variant? pending_playback;
 
         public PodcastsApp () {
             Object (application_id: "dev.sinty.podcasts", flags: ApplicationFlags.HANDLES_OPEN);
@@ -365,12 +366,50 @@ namespace Singularity.Apps.Podcasts {
                 return;
             }
             var w = get_active_window () as PodcastsWindow;
-            if (w == null) {
-                w = new PodcastsWindow (this);
-                int64 age = new DateTime.now_utc ().to_unix () - library.last_refresh;
-                if (library.shows.size > 0 && age > 3600) w.refresh_all.begin (true);
-            }
+            if (w == null) w = adopt (new PodcastsWindow (this));
             w.present ();
+        }
+
+        private PodcastsWindow adopt (PodcastsWindow w) {
+            int64 age = new DateTime.now_utc ().to_unix () - library.last_refresh;
+            if (library.shows.size > 0 && age > 3600) w.refresh_all.begin (true);
+            return w;
+        }
+
+        public Variant save_model () {
+            var d = new VariantDict ();
+            var e = player.episode;
+            d.insert_value ("show", new Variant.string (e != null ? e.show_url : ""));
+            d.insert_value ("episode", new Variant.string (e != null ? e.key () : ""));
+            d.insert_value ("position", new Variant.int32 (e != null ? player.position () : 0));
+            d.insert_value ("playing", new Variant.boolean (player.playing));
+            d.insert_value ("rate", new Variant.double (player.rate));
+            d.insert_value ("sleep", new Variant ("(ix)", (int) sleep.mode, sleep.time_left ()));
+            return d.end ();
+        }
+
+        public async void restore_model (Variant model) throws Error {
+            pending_playback = model;
+        }
+
+        public string window_kind (Gtk.Window w) {
+            return (w is PodcastsWindow) ? "podcasts" : "";
+        }
+
+        public Variant save_window (Gtk.Window w) {
+            return ((PodcastsWindow) w).save_migration ();
+        }
+
+        public async Gtk.Window? rebuild_window (string kind, Variant data) throws Error {
+            if (kind != "podcasts") return null;
+            foreach (var old in get_windows ().copy ()) {
+                if (old is PodcastsWindow) old.destroy ();
+            }
+            var w = adopt (new PodcastsWindow (this));
+            w.restore_migration (data);
+            if (pending_playback != null) w.resume_playback (pending_playback);
+            pending_playback = null;
+            return w;
         }
 
         public override void open (File[] files, string hint) {

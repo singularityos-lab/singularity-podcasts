@@ -35,13 +35,21 @@ namespace Singularity.Apps.Podcasts {
 
         public void start_minutes (int minutes, int64 at = -1) {
             if (at < 0) at = now ();
+            start_until (at + (int64) minutes.clamp (1, 24 * 60) * 60 * TimeSpan.SECOND);
+        }
+
+        public void start_until (int64 when) {
             stop_ticking ();
             left_func = null;
             mode = SleepMode.MINUTES;
-            deadline = at + (int64) minutes.clamp (1, 24 * 60) * 60 * TimeSpan.SECOND;
+            deadline = when;
             level = 1.0;
             start_ticking ();
             changed ();
+        }
+
+        public int64 time_left () {
+            return mode == SleepMode.MINUTES ? deadline - now () : -1;
         }
 
         public void start_track (SleepMode track_mode, owned LeftFunc left) {
