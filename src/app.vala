@@ -2,7 +2,7 @@ using Gtk;
 
 namespace Singularity.Apps.Podcasts {
 
-    public class PodcastsApp : Singularity.Application, Singularity.Migration.Migratable {
+    public class PodcastsApp : Singularity.Application, Singularity.Migration.Migratable, Singularity.Startup.Bootable {
         public Library library;
         public Player player;
         public Downloads downloads;
@@ -239,14 +239,14 @@ namespace Singularity.Apps.Podcasts {
                 string[] parts = param.get_string ().split ("\n", 2);
                 if (parts.length != 2) return;
                 var e = library.find_episode (parts[0], parts[1]);
-                activate ();
+                show_window ();
                 var w = get_active_window () as PodcastsWindow;
                 if (e != null && w != null && player.episode != e) w.play_episode (e);
             });
             add_action (play_episode);
             var show_new = new SimpleAction ("show-new", null);
             show_new.activate.connect (() => {
-                activate ();
+                show_window ();
                 var w = get_active_window () as PodcastsWindow;
                 if (w != null) w.go ("new");
             });
@@ -359,7 +359,38 @@ namespace Singularity.Apps.Podcasts {
             foreach (var w in get_windows ().copy ()) w.close ();
         }
 
-        public override void activate () {
+        public Singularity.Startup.Plan build_plan (Singularity.Startup.Request request) {
+            var plan = new Singularity.Startup.Plan ();
+            plan.version = "podcasts-1";
+            if (request.kind == Singularity.Startup.RequestKind.SERVICE) {
+                plan.main ("ready", Singularity.Startup.Category.PREPARE, (c) => {})
+                    .reaches (Singularity.Startup.Milestone.SHELL_READY)
+                    .reaches (Singularity.Startup.Milestone.CONTENT_READY)
+                    .reaches (Singularity.Startup.Milestone.INTERACTIVE);
+                return plan;
+            }
+            var window = plan.main ("window", Singularity.Startup.Category.SHELL, (c) => {
+                show_window ();
+                c.window = get_active_window ();
+            }).reaches (Singularity.Startup.Milestone.SHELL_READY);
+            if (request.kind == Singularity.Startup.RequestKind.OPEN) {
+                var files = request.files ();
+                plan.main ("open-file", Singularity.Startup.Category.CONTENT, (c) => open_files (files))
+                    .depends_on ("window")
+                    .reaches (Singularity.Startup.Milestone.CONTENT_READY)
+                    .reaches (Singularity.Startup.Milestone.INTERACTIVE);
+            } else {
+                window.reaches (Singularity.Startup.Milestone.CONTENT_READY).reaches (Singularity.Startup.Milestone.INTERACTIVE);
+            }
+            return plan;
+        }
+
+        public void handle_request (Singularity.Startup.Request request) {
+            if (request.kind == Singularity.Startup.RequestKind.OPEN) open_files (request.files ());
+            else show_window ();
+        }
+
+        private void show_window () {
             if (show_new_pending) {
                 show_new_pending = false;
                 activate_action ("show-new", null);
@@ -412,8 +443,8 @@ namespace Singularity.Apps.Podcasts {
             return w;
         }
 
-        public override void open (File[] files, string hint) {
-            activate ();
+        private void open_files (File[] files) {
+            show_window ();
             var w = get_active_window () as PodcastsWindow;
             if (w == null) return;
             foreach (var file in files) {
